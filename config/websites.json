@@ -1,0 +1,14 @@
+{
+    "virtual-mall.app/": {
+        "PageTitle": "Mall",
+        "PageIcon": "/img/logos/mall-favicon-32.png",
+        "MetaTitle": "Virtual Mall Demo",
+        "MetaDescription": "Manage and patronize a virtual mall!",
+        "MetaVideo": "!",
+        "MetaType": "website",
+        "MetaImage": "https://mir-s3-cdn-cf.behance.net/project_modules/fs/e8588f159186385.6399992eddda4.png",
+        "MetaUrl": "https://virtual-mall.app/",
+        "TwitterUsername": "@virtual-mall",
+        "MetaKeywords": "Virtual, Shopping, Mall"
+    }
+}

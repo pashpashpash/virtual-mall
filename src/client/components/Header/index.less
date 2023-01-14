@@ -1,0 +1,77 @@
+@import '../../less/common.less';
+
+.header {
+    background: linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0) 25%,
+        rgba(255, 255, 255, 0.06)
+    );
+    @header-height: 82px;
+    padding: 32px 32px 0px 32px;
+    position: fixed;
+    right: 0;
+    left: 0;
+    top: 0;
+    height: @header-height;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+
+    &.absolute {
+        position: absolute;
+    }
+
+    a {
+        font-size: 18px;
+        text-decoration: none;
+    }
+
+    @media @small-query, @medium-query {
+        position: absolute;
+    }
+
+    &.size-small {
+        height: @header-height;
+
+        .topBar {
+            height: @header-height;
+        }
+    }
+
+    &.size-big {
+        height: (@header-height + 22px);
+
+        .topBar {
+            height: (@header-height + 22px);
+        }
+    }
+
+    &.background-transparent {
+        .topBar {
+            background: transparent;
+        }
+    }
+
+    .mainLinks {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+        flex-grow: 1;
+        @media @small-query {
+            display: none;
+        }
+        .menuButton {
+            padding: 12px;
+            color:white;
+            // display: none;
+        }
+    }
+}
+
+@keyframes slide {
+    100% {
+        background-position: 805px 0px;
+    }
+}
