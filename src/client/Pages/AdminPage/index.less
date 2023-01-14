@@ -47,6 +47,36 @@ body {
 
         align-items: center;
         justify-content: center;
+        min-height: 500px;
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+            width: 100%;
+
+            .delete {
+                width: 24px;
+                height: 24px;
+                background: url(/img/common/cross.png);
+                background-size: 100%;
+                background-repeat: no-repeat;
+                background-position: center;
+                cursor: pointer;
+
+                &:hover {
+                    filter: brightness(110%);
+                    transition: all 200ms ease-in-out;
+                    border-color: @color-virtual-mall-white;
+                }
+            
+                &:active {
+                    filter: brightness(80%);
+                    transition: all 200ms ease-in-out;
+                }
+            }
+        }
     }
 }
 

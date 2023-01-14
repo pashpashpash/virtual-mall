@@ -6,7 +6,9 @@ import (
 	"log"
 	"time"
 
+	"cloud.google.com/go/datastore"
 	"github.com/pashpashpash/virtual-mall/protobuf"
+	"google.golang.org/api/iterator"
 )
 
 const ShopDataKind string = "ShopInfo"
@@ -56,25 +58,52 @@ func GetShopInfoWithHighestId() (protobuf.ShopInfo, error) {
 
 func GetAllShopsInfo() (*protobuf.ShopInfos, error) {
 	var shops protobuf.ShopInfos
-	var shop protobuf.ShopInfo
-	var err error
 	startTime := time.Now()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	q := NewQuery("ShopInfo").
-		Order("ID")
 
-	iter := DatastoreClient.Run(ctx, q)
-	for _, err = iter.Next(&shop); err != nil; _, err = iter.Next(&shop) { //checks for last DB entry
+	iter := GetAllShopsIter(ctx)
+	for {
+		var shop protobuf.ShopInfo
+
+		_, err := iter.Next(&shop)
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
 		shops.Items = append(shops.Items, &shop)
-	}
-	if err != nil {
-		log.Printf("[Datastore] Error Getting ShopInfo!\n %v\n", err)
-		return nil, err
 	}
 
 	elapsed := time.Since(startTime)
 	log.Printf("[Datastore] GetLatestEtherFlower Latency: %s\n", elapsed)
 	return &shops, nil
+}
+
+func GetAllShopsIter(ctx context.Context) *datastore.Iterator {
+	q := NewQuery("ShopInfo").
+		Order("-ID")
+
+	return DatastoreClient.Run(ctx, q)
+}
+
+func DeleteShopInfoByID(id int64) error {
+	startTime := time.Now()
+
+	key := NameKey(ShopDataKind, fmt.Sprint(id), nil)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+	if err := DatastoreClient.Delete(ctx, key); err != nil {
+		log.Printf("[Datastore] Error Deleting #%d ShopInfo: %v", id, err)
+		return err
+	}
+
+	elapsed := time.Since(startTime)
+	log.Printf("[Datastore] Shop Delete Latency: %s\n", elapsed)
+
+	return nil
 }

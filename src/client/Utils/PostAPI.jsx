@@ -5,7 +5,7 @@
 import Promises from './Promises';
 import Web3 from 'web3';
 
-import { ShopInfo } from '../../protobuf/shop_pb';
+import { ShopInfo, ShopInfos } from '../../protobuf/shop_pb';
 import { ShopInfo$AsClass } from '../../protobuf/shop_pb.flow';
 import TimedLocalStorage from './TimedLocalStorage';
 
@@ -139,14 +139,14 @@ const util = {
 };
 
 const shop = {
-    write: (
+    add: (
         web3: Object,
         account: string,
-        ShopInfo: ShopInfo$AsClass
+        shopInfo: ShopInfo$AsClass
     ): Promise<any> => {
         const resultPromise = new Promise((resolve: any, reject: any) => {
-            console.log(ShopInfo);
-            const shopInfoBin = ShopInfo.serializeBinary();
+            console.log(shopInfo);
+            const shopInfoBin = shopInfo.serializeBinary();
             const shopInfoHex = web3.utils.bytesToHex(shopInfoBin);
             // Removing the 0x helps sign the binary data w/o conversion
             const toSign = 'Shop Info: ' + shopInfoHex.slice(2);
@@ -204,13 +204,7 @@ const shop = {
                                 console.log('bailing');
                                 return;
                             }
-                            TimedLocalStorage.save(
-                                'shopInfo.' + account,
-                                ShopInfo.toObject(),
-                                SHOPINFO_CACHE_DURATION
-                            );
                             resolve();
-                            console.log('shopInfo Updated!');
                         });
                 })
                 .catch((err: Error) => {
@@ -222,54 +216,26 @@ const shop = {
         return Promises.makeCancelable(resultPromise);
     },
 
-    read: (
-        account: string,
-        myAccount: string,
-        opt_noCache: boolean
-    ): Promise<any> => {
-        if (myAccount == null) myAccount = '';
-        let cachedshopInfo = TimedLocalStorage.loadArrayBuffer(
-            'ACCOUNT#' + account
-        );
-        if (opt_noCache) {
-            cachedshopInfo = null;
-        }
-        if (cachedshopInfo) {
-            console.log('[/shopInfo/read] CACHE HIT');
-            return new Promise((resolve: any, reject: any): void => {
-                let uInfo = null;
-                try {
-                    uInfo = User.deserializeBinary(cachedshopInfo);
-                } catch (e) {
-                    console.log('[USER ERR] ', e);
-                    reject(e);
-                    return null;
-                }
-                resolve(uInfo.toObject().itemsList);
-                return null;
-            });
-        }
-
-        return new Promise((resolve: any, reject: any) => {
+    getAllShops: (account: string): Promise<any> => {
+        const resultPromise = new Promise((resolve: any, reject: any) => {
             var data = new FormData();
-            data.append('input', account);
-            data.append('sourceaccount', myAccount);
+            data.append('sourceaccount', account);
 
             const timeoutID = setTimeout(
                 function () {
-                    console.log('[/shopInfo/read] Timeout:', account);
+                    console.log('[/shopinfo/getallshops] Timeout:', account);
                     reject(new Error('Timeout'));
                 }.bind(this),
                 API_TIMEOUT
             );
 
-            fetch('/shopInfo/read', {
+            fetch('/shopinfo/getallshops', {
                 method: 'POST',
                 body: data,
-            }) // TODO increase type strictness of the response @NT 12/14/2021
+            })
                 .then((res: any): any => {
                     console.log(
-                        `[/shopInfo/read RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
+                        `[/shopinfo/getallshops RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
                     );
                     clearTimeout(timeoutID);
                     if (res.ok) return res.arrayBuffer();
@@ -280,7 +246,10 @@ const shop = {
                     return null;
                 })
                 .catch((err: Error): void => {
-                    console.log('[/shopInfo/read] Error sending POST', err);
+                    console.log(
+                        '[/shopinfo/getallshops] Error sending POST',
+                        err
+                    );
                     reject(err);
                     return undefined;
                 })
@@ -290,20 +259,102 @@ const shop = {
                         return;
                     }
                     try {
-                        const shopInfo = User.deserializeBinary(resData);
-                        const UserDataArray = shopInfo.toObject();
+                        console.log('>>>>>>>>>>>rawdata', { resData });
+                        const shopInfo = ShopInfos.deserializeBinary(resData);
+                        const shopInfoArray = shopInfo.toObject();
                         console.log(
-                            '[/shopInfo/read] Success',
-                            UserDataArray.itemsList[UserKey.USERNAME],
-                            UserDataArray.itemsList[UserKey.EMAIL]
+                            '[/shopinfo/getallshops] Success',
+                            shopInfoArray
                         );
-                        resolve(UserDataArray.itemsList);
+                        resolve(shopInfoArray.itemsList);
                     } catch (err) {
                         console.log('[User Read ERR] unable to handle', err);
                         reject(err);
                     }
                 });
         });
+
+        return Promises.makeCancelable(resultPromise);
+    },
+
+    delete: (
+        web3: Object,
+        account: string,
+        shopInfo: ShopInfo$AsClass
+    ): Promise<any> => {
+        const resultPromise = new Promise((resolve: any, reject: any) => {
+            console.log(shopInfo);
+            const shopInfoBin = shopInfo.serializeBinary();
+            const shopInfoHex = web3.utils.bytesToHex(shopInfoBin);
+            // Removing the 0x helps sign the binary data w/o conversion
+            const toSign = 'Shop Info: ' + shopInfoHex.slice(2);
+            console.log(
+                '========================================================'
+            );
+            util.sign(web3, toSign, account)
+                .then((sig: string) => {
+                    // Start POST Write Message
+                    const data = new FormData();
+                    data.append('sourceaccount', account);
+                    data.append('message', toSign);
+                    data.append('signature', sig);
+                    console.log(
+                        '[/shopinfo/delete] preparing data for server:',
+                        {
+                            account,
+                            toSign,
+                            sig,
+                        }
+                    );
+
+                    // Test Verify
+                    // web3.eth.personal.ecRecover(toSign, sig).then(
+                    //     console.log.bind(console.log, "Recover:"));
+
+                    const timeoutID = setTimeout(
+                        function () {
+                            console.log('[/shopinfo/delete] Timeout:', account);
+                            reject(new Error('Timeout'));
+                        }.bind(this),
+                        API_TIMEOUT
+                    );
+                    fetch('/shopinfo/delete', {
+                        method: 'POST',
+                        body: data,
+                    })
+                        .then((res: any): void | string => {
+                            console.log(
+                                `[/shopinfo/delete RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
+                            );
+                            clearTimeout(timeoutID);
+                            if (res.ok) return res.text();
+                            res.text().then((text: string) => {
+                                reject(text);
+                            });
+                            return null;
+                        })
+                        .catch((err: Error) => {
+                            console.log(
+                                '[/shopinfo/delete] Error sending POST',
+                                err
+                            );
+                            reject(new Error('POSTing error'));
+                        })
+                        .then((res: any) => {
+                            if (res === null) {
+                                console.log('bailing');
+                                return;
+                            }
+                            resolve();
+                        });
+                })
+                .catch((err: Error) => {
+                    console.log('Error signing', err);
+                    reject(new Error('Signing Failed'));
+                });
+        });
+
+        return Promises.makeCancelable(resultPromise);
     },
 };
 

@@ -66,8 +66,9 @@ func main() {
 	mx := mux.NewRouter()
 
 	// ShopInfo
-	mx.HandleFunc("/shopinfo/read", postapi.ShopInfoReadHandler).Methods("POST")
+	mx.HandleFunc("/shopinfo/getallshops", postapi.ShopInfoReadHandler).Methods("POST")
 	mx.HandleFunc("/shopinfo/add", postapi.ShopInfoAddHandler).Methods("POST")
+	mx.HandleFunc("/shopinfo/delete", postapi.ShopInfoDeleteHandler).Methods("POST")
 
 	// login / auth flow
 	mx.HandleFunc("/session/login", postapi.SessionLoginHandler).Methods("POST")

@@ -21,7 +21,7 @@ func ShopInfoReadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	shops, err := datastoreclient.GetAllShopsInfo()
-	if err != nil {
+	if err != nil && err != iterator.Done {
 		http.Error(w, fmt.Sprintf("[ShopInfoRead] Error Writing ShopInfo"), http.StatusInternalServerError)
 		return
 	}
@@ -90,6 +90,53 @@ func ShopInfoAddHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Could Not Marshal ShopInfo"), http.StatusNotFound)
 		return
 	}
+	log.Printf("Writing ShopInfo to response.... %+v\n", shopInfo)
+	_, err = w.Write(encoded)
+	if err != nil {
+		log.Println("[ShopInfoWrite] Error Response Writing", err)
+		http.Error(w, fmt.Sprintf("Could Not Write ShopInfo"), http.StatusNotFound)
+		return
+	}
+	log.Println("[ShopInfoWrite] Completed", shopInfo)
+}
+
+func ShopInfoDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	form := new(form.ShopInfoWriteForm)
+
+	// validation & parsing
+	if errs := FormParseVerify(form, "ShopInfoDelete", w, r); errs != nil {
+		return
+	}
+	sourceAccount := common.HexToAddress(form.SourceAccount)
+	if err := validateLoggedInSourceAccount(r, sourceAccount); err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	shopInfo, err := form.ParseShopInfo()
+	log.Printf("[ShopInfoWrite] Incoming shop info:\n%+v\n", shopInfo)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("[ShopInfoWrite] Error Parsing ShopInfo"), http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Saving ShopInfo.... %+v\n", shopInfo)
+
+	err = datastoreclient.DeleteShopInfoByID(shopInfo.ID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("[ShopInfoWrite] Error Deleting ShopInfo"), http.StatusInternalServerError)
+		return
+	}
+
+	//todo: remove all booking infos for this shop as well.
+
+	// response
+	encoded, err := proto.Marshal(shopInfo)
+	if err != nil {
+		log.Println("[ShopInfoWrite] Error Marshaling")
+		http.Error(w, fmt.Sprintf("Could Not Marshal ShopInfo"), http.StatusNotFound)
+		return
+	}
+	log.Printf("Writing ShopInfo to response.... %+v\n", shopInfo)
 	_, err = w.Write(encoded)
 	if err != nil {
 		log.Println("[ShopInfoWrite] Error Response Writing", err)

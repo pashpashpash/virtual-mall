@@ -28,6 +28,28 @@ const AdminPage = (props: Props): React.Node => {
     const hashParts = props.history.location.hash.split('#');
     const HashId = hashParts[1];
 
+    const [shops, setShops] = React.useState<
+        Array<{ id: number, createdBy: string }>
+    >([]);
+
+    const queryAndSetShops = React.useCallback(() => {
+        const shopInfoPromise = Util.PostAPI.shop.getAllShops(account);
+        shopInfoPromise.promise
+            .then((r) => {
+                console.log('[AdminPage] Successfully read all storefronts', r);
+                setShops(r);
+            })
+            .catch((e) => {
+                console.log('[AdminPage] Failed to read storefronts', e);
+            });
+    }, [setShops]);
+
+    React.useEffect(() => {
+        if (account != null) {
+            queryAndSetShops();
+        }
+    }, [account]);
+
     const handleScroll = (id: string, extra: number) => {
         const element = document.getElementById(id);
         if (!element) return;
@@ -45,7 +67,7 @@ const AdminPage = (props: Props): React.Node => {
         const shop: ShopInfo$AsClass = new ShopInfo();
         shop.setCreatedBy(account);
         console.log('>>>>>>>>>>>> creating new shop', shop.toObject());
-        const shopInfoPromise = Util.PostAPI.shop.write(library, account, shop);
+        const shopInfoPromise = Util.PostAPI.shop.add(library, account, shop);
 
         shopInfoPromise.promise
             .then((r) => {
@@ -53,9 +75,34 @@ const AdminPage = (props: Props): React.Node => {
                     '[AdminPage] Successfully created new storefront',
                     r
                 );
+                queryAndSetShops();
             })
             .catch((e) => {
                 console.log('[AdminPage] Failed to create new storefront', e);
+            });
+    });
+
+    const handleDelete = React.useCallback((id) => {
+        const shop: ShopInfo$AsClass = new ShopInfo();
+        shop.setId(id);
+        const shopInfoPromise = Util.PostAPI.shop.delete(
+            library,
+            account,
+            shop
+        );
+        shopInfoPromise.promise
+            .then((r) => {
+                console.log(
+                    '[AdminPage] Successfully deleted storefront #' + id,
+                    r
+                );
+                queryAndSetShops();
+            })
+            .catch((e) => {
+                console.log(
+                    '[AdminPage] Failed to delete storefront #' + id,
+                    e
+                );
             });
     });
 
@@ -80,15 +127,39 @@ const AdminPage = (props: Props): React.Node => {
 
     if (userLoggedIn) {
         page = (
-            <div
-                className={s.text}
-                style={{
-                    height: 500,
-                }}>
-                <div>Admin Page!</div>
+            <div className={s.text}>
                 <div className={s.button} onClick={handleAddShop}>
                     + Add Storefront
                 </div>
+                {shops.length > 0 && (
+                    <div className={s.row}>
+                        <div>Shop ID</div>
+                        <div style={{ width: 24 }}></div>
+                        <div>Created By</div>
+                    </div>
+                )}
+                {shops.map((shop) => {
+                    return (
+                        <div className={s.row}>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}>
+                                <div
+                                    className={s.delete}
+                                    onClick={handleDelete.bind(
+                                        this,
+                                        shop.id
+                                    )}></div>
+                                <div style={{ width: 24 }}></div>
+                                <div>{shop.id}</div>
+                            </div>
+                            <div style={{ width: 24 }}></div>
+                            <div>{shop.createdBy}</div>
+                        </div>
+                    );
+                })}
             </div>
         );
     }
