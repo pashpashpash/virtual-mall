@@ -5,6 +5,8 @@ import { render } from 'react-dom';
 
 // web3 stuff
 import { Web3ReactProvider } from '@web3-react/core';
+import { Provider } from 'react-redux';
+import configureAppStore from './redux/store';
 
 import Web3 from 'web3';
 
@@ -17,13 +19,19 @@ import './less/defaults.less';
 
 const initialState = {};
 
-const getLibrary = function(provider: Object): Object {
+const Store = configureAppStore(initialState);
+
+const getLibrary = function (provider: Object): Object {
     return new Web3(provider);
 };
 
+console.log('>>>>>>>>>>>>>>>>>>>STORE', { Store, getLibrary });
+
 render(
-    <Web3ReactProvider getLibrary={getLibrary}>
-        <AppRouting />
-    </Web3ReactProvider>,
+    <Provider store={Store}>
+        <Web3ReactProvider getLibrary={getLibrary}>
+            <AppRouting />
+        </Web3ReactProvider>
+    </Provider>,
     document.getElementById('app')
 );

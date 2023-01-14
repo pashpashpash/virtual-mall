@@ -1,0 +1,134 @@
+@import '../../less/common.less';
+
+.darkModeText {
+    color: @color-virtual-mall-white;
+}
+
+.darkModeButton {
+    border-color: @color-virtual-mall-background-light-grey !important;
+    color: @color-virtual-mall-white;
+    transition: all 200ms ease-in-out;
+
+    &:hover {
+        border-color: @color-virtual-mall-background-darker-grey! important;
+        color: @color-virtual-mall-background-light-grey;
+    }
+
+    &:active {
+        border-color: @color-virtual-mall-background-black! important;
+    }
+}
+
+.connectorBoxSelected {
+    border: 6px solid @color-virtual-mall-white !important;
+}
+
+.injectorContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    //padding-top: 48px;
+    font-weight: 300;
+    font-size: 22px;
+    max-width: 100%;
+
+    .walletButtons {
+        display: flex;
+        justify-content: space-evenly;
+        justify-items: center;
+        align-items: center;
+        flex-wrap: wrap;
+
+        .connectorBox {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 6px solid rgba(0, 0, 0, 0);
+            margin: 6px;
+            align-items: center;
+
+            @media @small-query {
+                padding: 0px;
+            }
+            .connectorButton {
+                .square(128px);
+                background: white;
+                border-radius: 22px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+
+                @media @small-query {
+                    .square(64px);
+                }
+                .buttonImg {
+                    height: 92px;
+                    border-radius: 18px;
+                    #ui.clickableImage();
+                    @media @small-query {
+                        .square(54px);
+                    }
+                }
+
+                &:hover {
+                    background: #fff8e1;
+                }
+                &:active {
+                    border: solid 2px #412402;
+                }
+                &:focus {
+                    border: solid 2px #412402;
+                }
+            }
+            .buttonText {
+                margin: 0 auto;
+                padding: 8px;
+            }
+        }
+    }
+
+    .bottomButtons {
+        @color: @color-virtual-mall-background-black;
+        color: @color;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        user-select: none;
+        transition: all 200ms ease-in-out;
+        width: 100%;
+        padding: 24px;
+        border-color: @color-virtual-mall-background-darker-grey;
+
+        &[data-valid='true'] {
+            pointer-events: none;
+            background-color: desaturate(@color, 10%);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .connectButton,
+        .setUpButton {
+            padding: 24px;
+            border: 6px solid;
+            width: 100%;
+            text-align: center;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+            &:hover {
+                filter: brightness(110%);
+                transition: all 200ms ease-in-out;
+            }
+
+            &:active {
+                filter: brightness(80%);
+                transition: all 200ms ease-in-out;
+            }
+        }
+    }
+}

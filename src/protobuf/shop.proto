@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package protobuf;
+option go_package = "protobuf/";
+
+message ShopInfo {
+    int64 ID                = 1;
+    string created_by       = 2;
+}
+
+message ShopInfos {
+  repeated ShopInfo items        = 1;
+}

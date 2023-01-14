@@ -4,6 +4,8 @@ import s from './index.less';
 
 import Go from '../Go';
 import URL from 'url-parse';
+import AccountNav from '../AccountNav';
+
 // import Beta from './beta';
 
 const Header = (): React.Node => {
@@ -46,6 +48,9 @@ const Header = (): React.Node => {
         <div className={s.header}>
             <div className={s.socialButtons}></div>
             <div className={s.mainLinks}>{links}</div>
+            <div className={s.connectWallet}>
+                <AccountNav />
+            </div>
         </div>
     );
 };

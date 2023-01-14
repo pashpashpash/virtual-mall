@@ -5,6 +5,8 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 const LandingPage = lazy(() => import('./Pages/LandingPage'));
+const AdminPage = lazy(() => import('./Pages/AdminPage'));
+const BizPage = lazy(() => import('./Pages/BizPage'));
 const Header = lazy(() => import('./components/Header/index'));
 
 const loading = (
@@ -107,6 +109,18 @@ class AppRouting extends React.Component<Props, State> {
                                 <NugRoute component={Header} />
                             </Switch>
                             <Switch>
+                                <NugRoute
+                                    exact
+                                    path="/admin"
+                                    component={AdminPage}
+                                    change={this.handlePageChange}
+                                />
+                                <NugRoute
+                                    exact
+                                    path="/biz"
+                                    component={BizPage}
+                                    change={this.handlePageChange}
+                                />
                                 <NugRoute
                                     exact
                                     path="/"

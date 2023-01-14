@@ -6,16 +6,15 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/pashpashpash/virtual-mall/errorlist"
 	"github.com/pashpashpash/virtual-mall/form"
-	"github.com/pashpashpash/virtual-mall/serverutil"
+
+	"github.com/pashpashpash/virtual-mall/errorlist"
 
 	"github.com/gorilla/schema"
 	cache "github.com/patrickmn/go-cache"
 )
 
 var (
-	CONFIG    = serverutil.GetConfig()
 	NAMESPACE = ""
 	C         *cache.Cache
 )

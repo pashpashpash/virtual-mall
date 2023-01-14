@@ -20,7 +20,7 @@
   "author": "pashpashpash",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pashpashpash/virtual-mall/issues"
+    "url": "https://issues"
   },
   "homepage": "https://github.com/pashpashpash/virtual-mall#readme",
   "dependencies": {
@@ -44,6 +44,8 @@
     "prop-types": "15.7.2",
     "protobufjs": "^6.11.3",
     "react": "17.0.2",
+    "react-portal": "^4.2.2",
+    "react-redux": "^7.2.9",
     "react-router": "4.3.1",
     "react-router-dom": "4.3.1",
     "redux": "4.1.2",

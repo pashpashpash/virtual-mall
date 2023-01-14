@@ -9,6 +9,16 @@
 @color-virtual-mall-white: #ffffff;
 @color-faded-green: rgba(103, 243, 100, 0.77);
 
+@color-virtual-mall-background-light-grey: #c1bfba;
+@color-virtual-mall-background-medium-light-grey: rgb(109, 112, 110);
+@color-virtual-mall-background-dark-grey: #181816;
+@color-virtual-mall-background-darker-grey: #141412;
+@color-virtual-mall-background-medium-grey: #272727;
+@color-virtual-mall-background-medium-dark-grey: #232323;
+@color-virtual-mall-pending: #eca218;
+@color-virtual-mall-error: #d44418;
+@color-virtual-mall-confirmed: #78d60d;
+
 // Media Queries
 @base-query: all;
 @retina-query: ~'@{base-query} and (-moz-min-device-pixel-ratio: 1.5), @{base-query} and (-o-min-device-pixel-ratio: 3/2), @{base-query} and (-webkit-min-device-pixel-ratio: 1.5), @{base-query} and (min-device-pixel-ratio: 1.5), @{base-query} and (min-resolution: 1.5dppx)';
@@ -48,31 +58,7 @@
 #ui {
     @background: @color-virtual-mall-background-dark-grey;
 
-    .link(@color: @color-faded-green) {
-        color: @color;
-        cursor: pointer;
-        text-decoration: none;
-        transition: color 200ms ease-in-out;
-
-        &:visited {
-            color: @color;
-        }
-
-        &:hover {
-            color: contrast(@color, lighten(@color, 10%), darken(@color, 10%));
-        }
-
-        &:active {
-            color: contrast(@color, darken(@color, 20%), lighten(@color, 20%));
-        }
-
-        &:not([href]) {
-            pointer-events: none;
-            color: desaturate(@color, 35%);
-        }
-    }
-
-    .button(@color: @color-faded-green, @disabled: false) {
+    .button(@color: @color-dino-faded-green, @disabled: false) {
         -webkit-appearance: none;
         font-size: 14px;
         line-height: 32px;
@@ -126,6 +112,30 @@
         }
     }
 
+    .link(@color: @color-faded-green) {
+        color: @color;
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 200ms ease-in-out;
+
+        &:visited {
+            color: @color;
+        }
+
+        &:hover {
+            color: contrast(@color, lighten(@color, 10%), darken(@color, 10%));
+        }
+
+        &:active {
+            color: contrast(@color, darken(@color, 20%), lighten(@color, 20%));
+        }
+
+        &:not([href]) {
+            pointer-events: none;
+            color: desaturate(@color, 35%);
+        }
+    }
+
     .clickableImage(@delta: 20%) {
         transition: all 200ms ease-in-out;
         filter: brightness(100%);
@@ -174,5 +184,53 @@
 
     .auto {
         z-index: auto;
+    }
+}
+
+.button {
+    box-shadow: 1px 1px 2px black,
+        0 0 25px @color-virtual-mall-background-dark-grey,
+        0 0 5px @color-virtual-mall-background-darker-grey;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    font-size: 28px;
+    width: 100%;
+    padding: 18px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    border: 6px solid @color-virtual-mall-background-darker-grey;
+    border-radius: 0px;
+    cursor: pointer;
+    color: @color-virtual-mall-background-darker-grey;
+    font-weight: 600;
+    background: linear-gradient(to left,
+            #ff5770,
+            #e4428d,
+            #c42da8,
+            #9e16c3,
+            #6501de,
+            #9e16c3,
+            #c42da8,
+            #e4428d,
+            #ff5770);
+    background-size: 10000px 100%;
+    animation: bg 15s linear infinite;
+    transition: all 200ms ease-in-out;
+
+    @media @small-query {
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    &:hover {
+        filter: brightness(110%);
+        transition: all 200ms ease-in-out;
+        border-color: @color-virtual-mall-white;
+    }
+
+    &:active {
+        filter: brightness(80%);
+        transition: all 200ms ease-in-out;
     }
 }

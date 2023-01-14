@@ -38,7 +38,7 @@ const LandingPage = (props: Props): React.Node => {
                         alignItems: 'center',
                         justifyContent: 'center',
                     }}>
-                    <div>Home Page!</div>
+                    <div>Biz Page!</div>
                 </div>
             </Page>
         </>

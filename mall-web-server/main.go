@@ -15,9 +15,8 @@ import (
 	"compress/gzip"
 	"io"
 
-	"github.com/pashpashpash/virtual-mall/serverutil"
-
 	"github.com/pashpashpash/virtual-mall/mall-web-server/postapi"
+	"github.com/pashpashpash/virtual-mall/serverutil"
 
 	"github.com/pashpashpash/virtual-mall/datastoreclient"
 
@@ -65,6 +64,13 @@ func main() {
 	l.SetDateFormat(NegroniDateFmt)
 	server.Use(l)
 	mx := mux.NewRouter()
+
+	// ShopInfo
+	mx.HandleFunc("/shopinfo/read", postapi.ShopInfoReadHandler).Methods("POST")
+	mx.HandleFunc("/shopinfo/add", postapi.ShopInfoAddHandler).Methods("POST")
+
+	// login / auth flow
+	mx.HandleFunc("/session/login", postapi.SessionLoginHandler).Methods("POST")
 
 	// Path Routing Rules: Static Handlers
 	mx.HandleFunc("/github", StaticRedirectHandler("https://github.com/pashpashpash/virtual-mall"))

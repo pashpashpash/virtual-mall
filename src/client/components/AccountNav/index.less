@@ -1,0 +1,81 @@
+@import '../../less/common.less';
+
+.accountNavWrap {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    .main {
+        display: flex;
+        flex-direction: row;
+
+        .accountNav {
+            #ui.clickableImage();
+            background-color: @color-virtual-mall-background-darker-grey;
+            border: 1px solid @color-virtual-mall-background-black;
+            border-radius: 4px;
+            display: flex;
+            position: relative;
+            font-size: 18px;
+            line-height: 32px;
+            padding: 8px 18px 8px 18px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 16px;
+
+            .account {
+                color: white;
+                font-weight: 600;
+                @media @small-query {
+                    width: 100%;
+                    overflow: hidden; // limit max-width of account in nav bar on mobile
+                }
+            }
+        }
+
+        .settings {
+            .square(32px);
+            margin-top: 10px;
+            border-radius: 32px;
+            background-color: rgb(166, 107, 208);
+            background-image: url('/img/Common/gear-light-grey.svg');
+            background-size: 75%;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            &:hover {
+                filter: brightness(110%);
+            }
+
+            &:active {
+                filter: brightness(90%);
+            }
+        }
+    }
+
+    .subnav {
+        #ui.button(rgb(65, 130, 193));
+        display: inline-block;
+        position: relative;
+        right: -400px;
+        margin-top: 8px;
+        margin-right: 8px;
+        transition: all 500ms ease-in-out;
+        font-size: 12px;
+
+        &.network {
+            #ui.button(rgb(65, 130, 193));
+            font-size: 12px;
+            margin-top: 8px;
+            margin-right: 8px;
+        }
+
+        &.flowerCount {
+            #ui.button(#f9eabc);
+            font-size: 12px;
+            margin-top: 8px;
+            margin-right: 8px;
+        }
+    }
+}

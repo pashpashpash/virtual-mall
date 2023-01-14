@@ -5,8 +5,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/pashpashpash/virtual-mall/serverutil"
-
 	"cloud.google.com/go/datastore"
 	cache "github.com/patrickmn/go-cache"
 	"google.golang.org/api/option"
@@ -17,7 +15,6 @@ var DatastoreClient *datastore.Client
 var (
 	NAMESPACE = "virtual-mall-delete-later"
 	C         *cache.Cache
-	CONFIG    *serverutil.ConstantsConfig
 )
 
 const (
@@ -32,7 +29,6 @@ func Start(namespace string) error {
 	startTime := time.Now()
 	NAMESPACE = namespace
 	C = cache.New(5*time.Minute, 10*time.Minute)
-	CONFIG = serverutil.GetConfig()
 
 	var err error
 	DatastoreClient, err = datastore.NewClient(context.Background(),

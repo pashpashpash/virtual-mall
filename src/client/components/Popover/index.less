@@ -1,0 +1,107 @@
+@import '../../less/common.less';
+
+.popover-background {
+    opacity: 0;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    #zlayer.top();
+    pointer-events: none;
+    cursor: not-allowed;
+    transition: opacity 150ms ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @media @small-query {
+        //align-items: flex-end;
+        top: -20px;
+    }
+    &.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .popover {
+        position: relative;
+        @width: 770px;
+        @height: 480px;
+        width: @width;
+        min-height: @height;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 8px;
+        background-color: @color-virtual-mall-background-light-grey;
+        //overflow: hidden;
+        cursor: default;
+        margin: 4px;
+        .children {
+            @media @small-query {
+                padding-top: 92px;
+            }
+        }
+
+        .headerBone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+
+            @media @medium-query {
+                left: 35vw;
+            }
+            @media @small-query {
+                left: 15vw;
+            }
+            p {
+                font-family: Montserrat;
+                padding-bottom: 24px;
+            }
+        }
+    }
+}
+
+.closePadding {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 16px;
+    z-index: 100;
+    @media @small-query {
+        top: 28px;
+    }
+
+    .closeButton {
+        position: relative;
+        @bg-color: #fff8e1;
+        @size: 32px;
+
+        border-radius: 50%;
+        overflow: hidden;
+        .square(@size);
+        //border-radius: @size;
+        background-color: @bg-color;
+        color: #f9eabc;
+        cursor: pointer;
+
+        &:hover {
+            background-color: darken(@bg-color, 5%);
+        }
+
+        &:active {
+            background-color: darken(@bg-color, 10%);
+        }
+
+        &:after {
+            content: '✕';
+            position: absolute;
+            color: #412402;
+            top: 0px;
+            right: 10px;
+
+            line-height: @size;
+            text-align: center;
+        }
+    }
+}
