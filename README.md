@@ -1,6 +1,6 @@
 # virtual-mall
 
-Code for the ETHGlobal hackathon
+Customize and patronize your very own virtual shopping mall!
 
 ## Manual Dependencies
 
