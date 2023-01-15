@@ -70,6 +70,18 @@ func main() {
 	mx.HandleFunc("/shopinfo/add", postapi.ShopInfoAddHandler).Methods("POST")
 	mx.HandleFunc("/shopinfo/delete", postapi.ShopInfoDeleteHandler).Methods("POST")
 
+	// BookingInfo
+	mx.HandleFunc("/bookinginfo/add", postapi.BookingInfoAddHandler).Methods("POST")
+	mx.HandleFunc("/bookinginfo/biz/viewall", postapi.BookingInfoBizViewHandler).Methods("POST")
+	mx.HandleFunc("/bookinginfo/admin/viewall", postapi.BookingInfoAdminViewHandler).Methods("POST")
+	mx.HandleFunc("/bookinginfo/public/viewcurrent", postapi.BookingInfoCurrentBookingsHandler).Methods("POST")
+
+	mx.HandleFunc("/bookinginfo/biz/nextavailable", postapi.BookingInfoNextAvailableHandler).Methods("POST")
+	mx.HandleFunc("/bookinginfo/biz/nextavailable/all", postapi.BookingInfoNextAvailableAllHandler).Methods("POST")
+
+	// Admin
+	mx.HandleFunc("/admin/ban", postapi.BanBizHandler).Methods("POST")
+
 	// login / auth flow
 	mx.HandleFunc("/session/login", postapi.SessionLoginHandler).Methods("POST")
 

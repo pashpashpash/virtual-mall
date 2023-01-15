@@ -52,7 +52,7 @@ func GetShopInfoWithHighestId() (protobuf.ShopInfo, error) {
 	}
 
 	elapsed := time.Since(startTime)
-	log.Printf("[Datastore] GetLatestEtherFlower Latency: %s\n", elapsed)
+	log.Printf("[Datastore] GetShopInfoWithHighestId Latency: %s\n", elapsed)
 	return shop, err
 }
 
@@ -79,7 +79,7 @@ func GetAllShopsInfo() (*protobuf.ShopInfos, error) {
 	}
 
 	elapsed := time.Since(startTime)
-	log.Printf("[Datastore] GetLatestEtherFlower Latency: %s\n", elapsed)
+	log.Printf("[Datastore] GetAllShopsInfo Latency: %s\n", elapsed)
 	return &shops, nil
 }
 

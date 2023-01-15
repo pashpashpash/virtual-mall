@@ -12,7 +12,6 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// ShopInfoReadHandler Returns a UserValue protobuf for the account
 func ShopInfoReadHandler(w http.ResponseWriter, r *http.Request) {
 	form := new(form.SingleStringForm)
 
@@ -121,13 +120,19 @@ func ShopInfoDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Saving ShopInfo.... %+v\n", shopInfo)
 
+	//todo: remove all booking infos for this shop.
+
+	_, err = datastoreclient.DeleteAllBookingInfosByShop(shopInfo.ID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("[ShopInfoWrite] Error Deleting BookingInfo for shop"), http.StatusInternalServerError)
+		return
+	}
+
 	err = datastoreclient.DeleteShopInfoByID(shopInfo.ID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("[ShopInfoWrite] Error Deleting ShopInfo"), http.StatusInternalServerError)
 		return
 	}
-
-	//todo: remove all booking infos for this shop as well.
 
 	// response
 	encoded, err := proto.Marshal(shopInfo)

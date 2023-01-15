@@ -25,9 +25,6 @@ const AdminPage = (props: Props): React.Node => {
         (state: any): any => state.user
     );
 
-    const hashParts = props.history.location.hash.split('#');
-    const HashId = hashParts[1];
-
     const [shops, setShops] = React.useState<
         Array<{ id: number, createdBy: string }>
     >([]);
@@ -49,17 +46,6 @@ const AdminPage = (props: Props): React.Node => {
             queryAndSetShops();
         }
     }, [account]);
-
-    const handleScroll = (id: string, extra: number) => {
-        const element = document.getElementById(id);
-        if (!element) return;
-        var rect = element.getBoundingClientRect();
-        window.scrollTo({
-            top: rect.y + extra,
-            left: 0,
-            behavior: 'smooth',
-        });
-    };
 
     const handleAddShop = React.useCallback(() => {
         console.log('Adding new shop!');
@@ -148,10 +134,8 @@ const AdminPage = (props: Props): React.Node => {
                                 }}>
                                 <div
                                     className={s.delete}
-                                    onClick={handleDelete.bind(
-                                        this,
-                                        shop.id
-                                    )}></div>
+                                    onClick={handleDelete.bind(this, shop.id)}
+                                />
                                 <div style={{ width: 24 }}></div>
                                 <div>{shop.id}</div>
                             </div>

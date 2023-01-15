@@ -41,6 +41,84 @@ body {
     }
 
     .text {
-        color: @color-virtual-mall-white
+        color: @color-virtual-mall-white;
+
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .bookings {
+            width: 100%;
+
+            .row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+
+                .shop {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .calendarIcon {
+                        width: 24px;
+                        height: 24px;
+                        background: url(/img/common/calendar.png);
+                        background-size: 100%;
+                        background-repeat: no-repeat;
+                        background-position: center;
+                        cursor: pointer;
+                    
+                        &:hover {
+                            filter: brightness(110%);
+                            transition: all 200ms ease-in-out;
+                            border-color: @color-virtual-mall-white;
+                        }
+                    
+                        &:active {
+                            filter: brightness(80%);
+                            transition: all 200ms ease-in-out;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.popoverWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .inputs {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.delete {
+    width: 24px;
+    height: 24px;
+    background: url(/img/common/cross.png);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+
+    &:hover {
+        filter: brightness(110%);
+        transition: all 200ms ease-in-out;
+        border-color: @color-virtual-mall-white;
+    }
+
+    &:active {
+        filter: brightness(80%);
+        transition: all 200ms ease-in-out;
     }
 }

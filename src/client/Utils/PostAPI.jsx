@@ -7,6 +7,10 @@ import Web3 from 'web3';
 
 import { ShopInfo, ShopInfos } from '../../protobuf/shop_pb';
 import { ShopInfo$AsClass } from '../../protobuf/shop_pb.flow';
+import { BookingInfo, BookingInfos } from '../../protobuf/booking_pb';
+import { BookingInfo$AsClass } from '../../protobuf/booking_pb.flow';
+import { load } from 'protobufjs';
+
 import TimedLocalStorage from './TimedLocalStorage';
 
 const API_TIMEOUT = 25000; // ms
@@ -138,6 +142,566 @@ const util = {
     },
 };
 
+const booking = {
+    add: (
+        web3: Object,
+        account: string,
+        bookingInfo: BookingInfo$AsClass
+    ): Promise<any> => {
+        const resultPromise = new Promise((resolve: any, reject: any) => {
+            console.log(bookingInfo);
+            const bookingInfoBin = bookingInfo.serializeBinary();
+            const bookingInfoHex = web3.utils.bytesToHex(bookingInfoBin);
+            // Removing the 0x helps sign the binary data w/o conversion
+            const toSign = 'Booking Info: ' + bookingInfoHex.slice(2);
+            console.log(
+                '========================================================'
+            );
+            util.sign(web3, toSign, account)
+                .then((sig: string) => {
+                    // Start POST Write Message
+                    const data = new FormData();
+                    data.append('sourceaccount', account);
+                    data.append('message', toSign);
+                    data.append('signature', sig);
+                    console.log(
+                        '[/bookinginfo/add] preparing data for server:',
+                        {
+                            account,
+                            toSign,
+                            sig,
+                        }
+                    );
+
+                    const timeoutID = setTimeout(
+                        function () {
+                            console.log('[/bookinginfo/add] Timeout:', account);
+                            reject(new Error('Timeout'));
+                        }.bind(this),
+                        API_TIMEOUT
+                    );
+                    fetch('/bookinginfo/add', {
+                        method: 'POST',
+                        body: data,
+                    })
+                        .then((res: any): void | string => {
+                            console.log(
+                                `[/bookinginfo/add RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
+                            );
+                            clearTimeout(timeoutID);
+                            if (res.ok) return res.text();
+                            res.text().then((text: string) => {
+                                reject(text);
+                            });
+                            return null;
+                        })
+                        .catch((err: Error) => {
+                            console.log(
+                                '[/bookinginfo/add] Error sending POST',
+                                err
+                            );
+                            reject(new Error('POSTing error'));
+                        })
+                        .then((res: any) => {
+                            if (res === null) {
+                                console.log('bailing');
+                                return;
+                            }
+                            resolve();
+                        });
+                })
+                .catch((err: Error) => {
+                    console.log('Error signing', err);
+                    reject(new Error('Signing Failed'));
+                });
+        });
+
+        return Promises.makeCancelable(resultPromise);
+    },
+
+    nextAvailable: (
+        web3: Object,
+        account: string,
+        bookingInfo: BookingInfo$AsClass
+    ): Promise<any> => {
+        const resultPromise = new Promise((resolve: any, reject: any) => {
+            console.log(bookingInfo);
+            const bookingInfoBin = bookingInfo.serializeBinary();
+            const bookingInfoHex = web3.utils.bytesToHex(bookingInfoBin);
+            // Removing the 0x helps sign the binary data w/o conversion
+            const toSign = 'Booking Info: ' + bookingInfoHex.slice(2);
+            console.log(
+                '========================================================'
+            );
+            util.sign(web3, toSign, account)
+                .then((sig: string) => {
+                    // Start POST Write Message
+                    const data = new FormData();
+                    data.append('sourceaccount', account);
+                    data.append('message', toSign);
+                    data.append('signature', sig);
+                    console.log(
+                        '[/bookinginfo/biz/nextavailable] preparing data for server:',
+                        {
+                            account,
+                            toSign,
+                            sig,
+                        }
+                    );
+
+                    const timeoutID = setTimeout(
+                        function () {
+                            console.log(
+                                '[/bookinginfo/biz/nextavailable] Timeout:',
+                                account
+                            );
+                            reject(new Error('Timeout'));
+                        }.bind(this),
+                        API_TIMEOUT
+                    );
+                    fetch('/bookinginfo/biz/nextavailable', {
+                        method: 'POST',
+                        body: data,
+                    })
+                        .then((res: any): void | string => {
+                            console.log(
+                                `[/bookinginfo/biz/nextavailable RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
+                            );
+                            clearTimeout(timeoutID);
+                            if (res.ok) return res.text();
+                            res.text().then((text: string) => {
+                                reject(text);
+                            });
+                            return null;
+                        })
+                        .catch((err: Error) => {
+                            console.log(
+                                '[/bookinginfo/biz/nextavailable] Error sending POST',
+                                err
+                            );
+                            reject(new Error('POSTing error'));
+                        })
+                        .then((resData: any) => {
+                            if (resData == null) {
+                                reject(new Error('404'));
+                                return;
+                            }
+                            try {
+                                const obj = JSON.parse(resData);
+                                console.log('>>>>>>>>>>>rawdata', { obj });
+                                resolve(obj);
+                            } catch (err) {
+                                console.log(
+                                    '[User Read ERR] unable to handle',
+                                    err
+                                );
+                                reject(err);
+                            }
+                        });
+                })
+                .catch((err: Error) => {
+                    console.log('Error signing', err);
+                    reject(new Error('Signing Failed'));
+                });
+        });
+
+        return Promises.makeCancelable(resultPromise);
+    },
+
+    viewAllBookingsAsAdmin: (web3: Object, account: string): Promise<any> => {
+        const resultPromise = new Promise((resolve: any, reject: any) => {
+            const toSign = 'View All Booking Info: ' + 'As Admin';
+            console.log(
+                '========================================================'
+            );
+            util.sign(web3, toSign, account)
+                .then((sig: string) => {
+                    const data = new FormData();
+                    data.append('sourceaccount', account);
+                    data.append('message', toSign);
+                    data.append('signature', sig);
+                    console.log(
+                        '[/bookinginfo/admin/viewall] preparing data for server:',
+                        {
+                            account,
+                            toSign,
+                            sig,
+                        }
+                    );
+
+                    const timeoutID = setTimeout(
+                        function () {
+                            console.log(
+                                '[/bookinginfo/admin/viewall] Timeout:',
+                                account
+                            );
+                            reject(new Error('Timeout'));
+                        }.bind(this),
+                        API_TIMEOUT
+                    );
+
+                    fetch('/bookinginfo/admin/viewall', {
+                        method: 'POST',
+                        body: data,
+                    })
+                        .then((res: any): void | string => {
+                            console.log(
+                                `[/bookinginfo/admin/viewall RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
+                            );
+                            clearTimeout(timeoutID);
+                            if (res.ok) return res.text();
+                            res.text().then((text: string) => {
+                                reject(text);
+                            });
+                            return null;
+                        })
+                        .catch((err: Error) => {
+                            console.log(
+                                '[/bookinginfo/admin/viewall] Error sending POST',
+                                err
+                            );
+                            reject(new Error('POSTing error'));
+                        })
+                        .then((resData: any) => {
+                            if (resData == null) {
+                                reject(new Error('404'));
+                                return;
+                            }
+                            try {
+                                const obj = JSON.parse(resData);
+                                console.log('>>>>>>>>>>>rawdata', { obj });
+
+                                if (obj.items === undefined) {
+                                    resolve([]);
+                                } else {
+                                    resolve(obj.items);
+                                }
+                            } catch (err) {
+                                console.log(
+                                    '[User Read ERR] unable to handle',
+                                    err
+                                );
+                                reject(err);
+                            }
+                        });
+                })
+                .catch((err: Error) => {
+                    console.log('Error signing', err);
+                    reject(new Error('Signing Failed'));
+                });
+        });
+
+        return Promises.makeCancelable(resultPromise);
+    },
+
+    viewAllBookingsAsBiz: (web3: Object, account: string): Promise<any> => {
+        const resultPromise = new Promise((resolve: any, reject: any) => {
+            const toSign = 'View All Booking Info: ' + 'As Biz';
+            console.log(
+                '========================================================'
+            );
+            util.sign(web3, toSign, account)
+                .then((sig: string) => {
+                    const data = new FormData();
+                    data.append('sourceaccount', account);
+                    data.append('message', toSign);
+                    data.append('signature', sig);
+                    console.log(
+                        '[/bookinginfo/biz/viewall] preparing data for server:',
+                        {
+                            account,
+                            toSign,
+                            sig,
+                        }
+                    );
+
+                    const timeoutID = setTimeout(
+                        function () {
+                            console.log(
+                                '[/bookinginfo/biz/viewall] Timeout:',
+                                account
+                            );
+                            reject(new Error('Timeout'));
+                        }.bind(this),
+                        API_TIMEOUT
+                    );
+
+                    fetch('/bookinginfo/biz/viewall', {
+                        method: 'POST',
+                        body: data,
+                    })
+                        .then((res: any): void | string => {
+                            console.log(
+                                `[/bookinginfo/biz/viewall RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
+                            );
+                            clearTimeout(timeoutID);
+                            if (res.ok) return res.text();
+                            res.text().then((text: string) => {
+                                reject(text);
+                            });
+                            return null;
+                        })
+                        .catch((err: Error) => {
+                            console.log(
+                                '[/bookinginfo/biz/viewall] Error sending POST',
+                                err
+                            );
+                            reject(new Error('POSTing error'));
+                        })
+                        .then((resData: any) => {
+                            if (resData == null) {
+                                reject(new Error('404'));
+                                return;
+                            }
+                            try {
+                                const obj = JSON.parse(resData);
+                                console.log('>>>>>>>>>>>rawdata', { obj });
+                                if (obj.items === undefined) {
+                                    resolve([]);
+                                } else {
+                                    resolve(obj.items);
+                                }
+                            } catch (err) {
+                                console.log(
+                                    '[User Read ERR] unable to handle',
+                                    err
+                                );
+                                reject(err);
+                            }
+                        });
+                })
+                .catch((err: Error) => {
+                    console.log('Error signing', err);
+                    reject(new Error('Signing Failed'));
+                });
+        });
+
+        return Promises.makeCancelable(resultPromise);
+    },
+
+    nextAvailableAll: (web3: Object, account: string): Promise<any> => {
+        const resultPromise = new Promise((resolve: any, reject: any) => {
+            const toSign = 'View All Booking Info: ' + 'As Biz';
+            console.log(
+                '========================================================'
+            );
+            util.sign(web3, toSign, account)
+                .then((sig: string) => {
+                    const data = new FormData();
+                    data.append('sourceaccount', account);
+                    data.append('message', toSign);
+                    data.append('signature', sig);
+                    console.log(
+                        '[/bookinginfo/biz/nextavailable/all] preparing data for server:',
+                        {
+                            account,
+                            toSign,
+                            sig,
+                        }
+                    );
+
+                    const timeoutID = setTimeout(
+                        function () {
+                            console.log(
+                                '[/bookinginfo/biz/nextavailable/all] Timeout:',
+                                account
+                            );
+                            reject(new Error('Timeout'));
+                        }.bind(this),
+                        API_TIMEOUT
+                    );
+
+                    fetch('/bookinginfo/biz/nextavailable/all', {
+                        method: 'POST',
+                        body: data,
+                    })
+                        .then((res: any): void | string => {
+                            console.log(
+                                `[/bookinginfo/biz/nextavailable/all RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
+                            );
+                            clearTimeout(timeoutID);
+                            if (res.ok) return res.text();
+                            res.text().then((text: string) => {
+                                reject(text);
+                            });
+                            return null;
+                        })
+                        .catch((err: Error) => {
+                            console.log(
+                                '[/bookinginfo/biz/nextavailable/all] Error sending POST',
+                                err
+                            );
+                            reject(new Error('POSTing error'));
+                        })
+                        .then((resData: any) => {
+                            if (resData == null) {
+                                reject(new Error('404'));
+                                return;
+                            }
+                            try {
+                                const obj = JSON.parse(resData);
+                                console.log('>>>>>>>>>>>rawdata', { obj });
+                                if (obj.items === undefined) {
+                                    resolve([]);
+                                } else {
+                                    resolve(obj.items);
+                                }
+                            } catch (err) {
+                                console.log(
+                                    '[User Read ERR] unable to handle',
+                                    err
+                                );
+                                reject(err);
+                            }
+                        });
+                })
+                .catch((err: Error) => {
+                    console.log('Error signing', err);
+                    reject(new Error('Signing Failed'));
+                });
+        });
+
+        return Promises.makeCancelable(resultPromise);
+    },
+
+    viewAllBookingsAsPublic: (): Promise<any> => {
+        const resultPromise = new Promise((resolve: any, reject: any) => {
+            console.log(
+                '========================================================'
+            );
+
+            const timeoutID = setTimeout(
+                function () {
+                    console.log('[/bookinginfo/biz/viewall] Timeout');
+                    reject(new Error('Timeout'));
+                }.bind(this),
+                API_TIMEOUT
+            );
+
+            fetch('/bookinginfo/public/viewcurrent', {
+                method: 'POST',
+            })
+                .then((res: any): void | string => {
+                    console.log(
+                        `[/bookinginfo/public/viewcurrent RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
+                    );
+                    clearTimeout(timeoutID);
+                    if (res.ok) return res.text();
+                    res.text().then((text: string) => {
+                        reject(text);
+                    });
+                    return null;
+                })
+                .catch((err: Error) => {
+                    console.log(
+                        '[/bookinginfo/public/viewcurrent] Error sending POST',
+                        err
+                    );
+                    reject(new Error('POSTing error'));
+                })
+                .then((resData: any) => {
+                    if (resData == null) {
+                        reject(new Error('404'));
+                        return;
+                    }
+                    try {
+                        console.log('>>>>>>>>>>>rawdata', { resData });
+                        const obj = JSON.parse(resData);
+
+                        resolve(obj.items);
+                    } catch (err) {
+                        console.log('[User Read ERR] unable to handle', err);
+                        reject(err);
+                    }
+                });
+        });
+        return Promises.makeCancelable(resultPromise);
+    },
+};
+
+const admin = {
+    banBiz: (
+        web3: Object,
+        account: string,
+        bookingInfo: BookingInfo$AsClass
+    ): Promise<any> => {
+        const resultPromise = new Promise((resolve: any, reject: any) => {
+            console.log(bookingInfo);
+            const bookingInfoBin = bookingInfo.serializeBinary();
+            const bookingInfoHex = web3.utils.bytesToHex(bookingInfoBin);
+            // Removing the 0x helps sign the binary data w/o conversion
+            const toSign = 'Ban Biz: ' + bookingInfoHex.slice(2);
+            console.log(
+                '========================================================'
+            );
+            util.sign(web3, toSign, account)
+                .then((sig: string) => {
+                    // Start POST Write Message
+                    const data = new FormData();
+                    data.append('sourceaccount', account);
+                    data.append('message', toSign);
+                    data.append('signature', sig);
+                    console.log('[/admin/ban] preparing data for server:', {
+                        account,
+                        toSign,
+                        sig,
+                    });
+
+                    const timeoutID = setTimeout(
+                        function () {
+                            console.log('[/admin/ban] Timeout:', account);
+                            reject(new Error('Timeout'));
+                        }.bind(this),
+                        API_TIMEOUT
+                    );
+                    fetch('/admin/ban', {
+                        method: 'POST',
+                        body: data,
+                    })
+                        .then((res: any): void | string => {
+                            console.log(
+                                `[/admin/ban RESPONSE] STAT: ${res.status} | OK: ${res.ok}`
+                            );
+                            clearTimeout(timeoutID);
+                            if (res.ok) return res.text();
+                            res.text().then((text: string) => {
+                                reject(text);
+                            });
+                            return null;
+                        })
+                        .catch((err: Error) => {
+                            console.log('[/admin/ban] Error sending POST', err);
+                            reject(new Error('POSTing error'));
+                        })
+                        .then((resData: any) => {
+                            if (resData == null) {
+                                reject(new Error('404'));
+                                return;
+                            }
+                            try {
+                                console.log('>>>>>>>>>>>rawdata', { resData });
+                                const obj = JSON.parse(resData);
+
+                                resolve(obj.items);
+                            } catch (err) {
+                                console.log(
+                                    '[User Read ERR] unable to handle',
+                                    err
+                                );
+                                reject(err);
+                            }
+                        });
+                })
+                .catch((err: Error) => {
+                    console.log('Error signing', err);
+                    reject(new Error('Signing Failed'));
+                });
+        });
+
+        return Promises.makeCancelable(resultPromise);
+    },
+};
+
 const shop = {
     add: (
         web3: Object,
@@ -165,10 +729,6 @@ const shop = {
                         toSign,
                         sig,
                     });
-
-                    // Test Verify
-                    // web3.eth.personal.ecRecover(toSign, sig).then(
-                    //     console.log.bind(console.log, "Recover:"));
 
                     const timeoutID = setTimeout(
                         function () {
@@ -417,7 +977,9 @@ const session = {
 };
 
 const PostAPI = {
+    admin,
     shop,
+    booking,
     session,
     util,
 };

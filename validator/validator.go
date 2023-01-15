@@ -61,8 +61,6 @@ func ecRecover(sigHex string, msg []byte) (common.Address, error) {
 	return recoveredAddr, nil
 }
 
-// TODO: Replay Attacks: should implement nonce, destination ID
-// TODO: Admin Types: everything is validated against Store Managers
 func VerifyAdminSignature(sourceAccount, message, signature, name string, errs errorlist.Errors) {
 	if sourceAccount != "0xc1D622d588B92D2F7553c6fe66b1Ce6C52ec36f9" {
 		log.Println("[VerifyAdminSignature] Signer Not On Admin List:", sourceAccount)
@@ -83,6 +81,31 @@ func VerifyAdminSignature(sourceAccount, message, signature, name string, errs e
 	} else {
 		errs[name] = errorlist.NewError("signer is not admin")
 		log.Println("pubkey is not admin", recoveredAddr.Hex())
+		return
+	}
+}
+
+func VerifyBizSignature(sourceAccount, message, signature, name string, errs errorlist.Errors) {
+	if sourceAccount != "0xc1D622d588B92D2F7553c6fe66b1Ce6C52ec36f9" &&
+		sourceAccount != "0x4Ff64429270a369FD41f0fd920340FBC564958ED" {
+		log.Println("[VerifyBizSignature] Signer Not On Biz/Admin List:", sourceAccount)
+		errs[name] = errorlist.NewError("signer is not on biz/admin list")
+		return
+	}
+
+	givenAddr := common.HexToAddress(sourceAccount)
+	recoveredAddr, err := ecRecover(signature, []byte(message))
+	if err != nil {
+		errs[name] = errorlist.NewError("cannot verify signature: " + err.Error())
+		return
+	}
+
+	if recoveredAddr == givenAddr {
+		log.Println("[VerifyBizSignature] Biz Verified:", recoveredAddr.Hex())
+		return
+	} else {
+		errs[name] = errorlist.NewError("signer is not a biz/admin")
+		log.Println("pubkey is not biz/admin", recoveredAddr.Hex())
 		return
 	}
 }

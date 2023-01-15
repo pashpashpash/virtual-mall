@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package protobuf;
+option go_package = "protobuf/";
+
+message BookingInfo {
+    int64 start     = 1;
+    int64 end       = 2;
+    int64 shop_ID   = 3;
+    string biz      = 4;
+}
+
+message BookingInfos {
+  repeated BookingInfo items        = 1;
+}
